@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const layouts = require("express-ejs-layouts");
 const pw_auth_router = require('./routes/pwauth')
+const gptRouter = require('./routes/gpt')
 
 const User = require('./models/User');
 
@@ -93,6 +94,8 @@ app.use(layouts);
 app.get('/', (req, res, next) => {
   res.render('index');
 })
+
+app.use(gptRouter)
 
 app.get('/about',
   isLoggedIn,
