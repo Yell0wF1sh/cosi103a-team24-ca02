@@ -20,6 +20,10 @@ router.get("/gpt", (req, res, next) => {
     res.render('gptprompt', { title: 'Express' });
 })
 
+router.get('/gpt/paraphraser', (req, res, next) => {
+    res.render('gptparaphraser', { title: 'Express', originalText: undefined, paraphraseText: undefined, keywords: undefined });
+})
+
 router.post('/gpt/prompt',
     isLoggedIn,
     async (req, res, next) => {
@@ -30,17 +34,18 @@ router.post('/gpt/prompt',
             max_tokens: 1024,
             n: 1,
             stop: null,
-        })
+        }).then(results => { return results.data })
+            .catch(error => console.log(error))
         const history = new GPTHistoryItem(
             {
                 prompt: req.body.prompt,
-                answer: completion.data.choices[0].text,
-                createdAt: Date(completion.data.created),
+                answer: completion.choices[0].text,
+                createdAt: Date(completion.created),
                 userId: req.user._id,
             }
         )
         await history.save()
-        res.render('gptanswer', { question: req.body.prompt, answer: completion.data.choices[0].text })
+        res.render('gptanswer', { question: req.body.prompt, answer: completion.choices[0].text })
     }
 )
 
@@ -57,6 +62,84 @@ router.get('/gpt/clear-history',
     async (req, res, next) => {
         await GPTHistoryItem.remove({ userId: req.user._id })
         res.render('history', { items: [] })
+    }
+)
+
+// router.post('/gpt/paraphraser',
+//     isLoggedIn,
+//     async (req, res, next) => {
+//         let paraphraseText = await openai.createCompletion({
+//             model: "text-davinci-003",
+//             prompt: "Give a summary for the following text: " + req.body.promptText,
+//             temperature: 0.8,
+//             max_tokens: 2048,
+//             n: 1,
+//             stop: null,
+//         })
+//         let keywords = await openai.createCompletion({
+//             model: "text-davinci-003",
+//             prompt: "Give no more than five keywords for the following text: " + req.body.promptText,
+//             temperature: 0.8,
+//             max_tokens: 2048,
+//             n: 1,
+//             stop: null,
+//         })
+//         console.log(req.body.promptedText)
+//         console.log(paraphraseText.data.choices[0].text)
+//         res.render('gptparaphraser', { originalText: req.body.promptText, paraphraseText: paraphraseText.data.choices[0].text, keywords: keywords.data.choices[0].text })
+//     }
+// )
+
+router.post('/gpt/paraphraser',
+    isLoggedIn,
+    async (req, res, next) => {
+        let paraphraseText = await openai.createCompletion({
+            model: "text-davinci-003",
+            prompt: "Give a " + (req.body.wordCount == ""
+                ? ""
+                : req.body.wordCount + " words ") + "summary for the following text: " + req.body.promptText,
+            temperature: 0.8,
+            max_tokens: 2048,
+            n: 1,
+            stop: null,
+        })
+            .then(results => { return results.data.choices[0].text })
+            .catch(error => console.log(error));
+
+        let keywords = await openai.createCompletion({
+            model: "text-davinci-003",
+            prompt: (req.body.keywordCount == "default"
+                ? "Give only five keywords for the following text: " + req.body.promptText
+                : "Give only " + req.body.keywordCount + " keywords for the following text: " + req.body.promptText),
+            temperature: 0,
+            max_tokens: 2048,
+            n: 1,
+            stop: null,
+        })
+            .then(results => { return results.data.choices[0].text.split(":")[1] })
+            .catch(error => console.log(error));
+
+        const history = new GPTHistoryItem(
+            {
+                prompt: "Give a "
+                    + (req.body.wordCount == ""
+                        ? ""
+                        : req.body.wordCount + " words ")
+                    + "summary and "
+                    + (req.body.keywordCount == "default"
+                        ? "only five"
+                        : "only " + req.body.keywordCount)
+                    + " keywords for the following text: "
+                    + req.body.promptText,
+                answer: "Text: " + paraphraseText + "Keywords: " + keywords,
+                createdAt: new Date(),
+                type: 'paraphrase',
+                userId: req.user._id,
+            }
+        )
+        await history.save()
+
+        res.render('gptparaphraser', { originalText: req.body.promptText, paraphraseText, keywords })
     }
 )
 

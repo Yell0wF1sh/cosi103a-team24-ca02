@@ -7,6 +7,7 @@ var gptHistorySchema = Schema({
   prompt: String,
   answer: String,
   createdAt: Date,
+  type: String,
   userId: { type: ObjectId, ref: 'user' },
 });
 

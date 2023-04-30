@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        GPT Paraphraser
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+    <h1>
+        Paraphraser
+    </h1>
+    <% if (originalText==undefined || paraphraseText==undefined || keywords==undefined) { %>
+        <p>Enter text to be summarized (no more than 2000 words): </p>
+        <form method="post" action="/gpt/paraphraser">
+            <input type="text" name="promptText"><br>
+            <input type="text" name="wordCount"><br>
+            <select name="keywordCount">
+                <option>default</option>
+                <% let n=1 %>
+                    <% while (n <=10) { %>
+                        <option>
+                            <%= n%>
+                        </option>
+                        <% n +=1 %>
+                            <% } %>
+            </select>
+            <input type="submit">
+        </form>
+        <% } else { %>
+            <p>Original Text:</p>
+            <p>
+                <%= originalText %>
+            </p>
+            <p>Summarized Text:</p>
+            <p>
+                <%= paraphraseText %>
+            </p>
+            <p>Keywords:</p>
+            <p>
+                <%= keywords %>
+            </p>
+            <p>Summarize other text (no more than 2000 words): </p>
+            <form method="post" action="/gpt/paraphraser">
+                <input type="text" autocomplete="promptText" name="promptText"><br>
+                <input type="text" name="wordCount"><br>
+                <select name="keywordCount">
+                    <option>default</option>
+                    <% let n=0 %>
+                        <% while (n <=10) { %>
+                            <option>
+                                <%= n%>
+                            </option>
+                            <% n +=1 %>
+                                <% } %>
+                </select>
+                <input type="submit">
+            </form>
+            <% } %>
+</body>
+
+</html>
