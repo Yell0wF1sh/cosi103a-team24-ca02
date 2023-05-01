@@ -97,7 +97,7 @@ router.post('/gpt/paraphraser',
             model: "text-davinci-003",
             prompt: "Give a " + (req.body.wordCount == ""
                 ? ""
-                : req.body.wordCount + " words ") + "summary for the following text: " + req.body.promptText,
+                : "exactly " + req.body.wordCount + " words ") + "summary for the following text: " + req.body.promptText,
             temperature: 0.8,
             max_tokens: 2048,
             n: 1,
@@ -109,8 +109,8 @@ router.post('/gpt/paraphraser',
         let keywords = await openai.createCompletion({
             model: "text-davinci-003",
             prompt: (req.body.keywordCount == "default"
-                ? "Give only five keywords for the following text: " + req.body.promptText
-                : "Give only " + req.body.keywordCount + " keywords for the following text: " + req.body.promptText),
+                ? "Give exactly five keywords for the following text: " + req.body.promptText
+                : "Give exactly " + req.body.keywordCount + " keywords for the following text: " + req.body.promptText),
             temperature: 0,
             max_tokens: 2048,
             n: 1,
