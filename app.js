@@ -6,6 +6,7 @@ const logger = require('morgan');
 const layouts = require("express-ejs-layouts");
 const pw_auth_router = require('./routes/pwauth')
 const gptRouter = require('./routes/gpt')
+const poetry_router = require('./routes/poetry')
 
 const User = require('./models/User');
 
@@ -96,7 +97,7 @@ app.get('/', (req, res, next) => {
 })
 
 app.use(gptRouter)
-
+app.use(poetry_router)
 app.get('/about',
   isLoggedIn,
   (req, res, next) => {
