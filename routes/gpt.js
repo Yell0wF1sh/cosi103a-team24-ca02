@@ -57,11 +57,19 @@ router.get('/gpt/history',
     }
 )
 
-router.get('/gpt/clear-history',
+router.get('/gpt/history/clear',
     isLoggedIn,
     async (req, res, next) => {
         await GPTHistoryItem.remove({ userId: req.user._id })
         res.render('history', { items: [] })
+    }
+)
+
+router.get('/gpt/history/sortByDate',
+    isLoggedIn,
+    async (req, res, next) => {
+        items = await GPTHistoryItem.find({ userId: req.user._id }).sort({ date: 1 })
+        res.render('history', { items })
     }
 )
 
@@ -95,9 +103,10 @@ router.post('/gpt/paraphraser',
     async (req, res, next) => {
         let paraphraseText = await openai.createCompletion({
             model: "text-davinci-003",
-            prompt: "Give a " + (req.body.wordCount == ""
-                ? ""
-                : "exactly " + req.body.wordCount + " words ") + "summary for the following text: " + req.body.promptText,
+            prompt: "Give a "
+                + (req.body.wordCount == "" ? "" : "exactly " + req.body.wordCount + " words ")
+                + "summary for the following text: "
+                + req.body.promptText,
             temperature: 0.8,
             max_tokens: 2048,
             n: 1,
@@ -119,27 +128,32 @@ router.post('/gpt/paraphraser',
             .then(results => { return results.data.choices[0].text.split(":")[1] })
             .catch(error => console.error(error));
 
-        const history = new GPTHistoryItem(
-            {
-                prompt: "Give a "
-                    + (req.body.wordCount == ""
-                        ? ""
-                        : req.body.wordCount + " words ")
-                    + "summary and "
-                    + (req.body.keywordCount == "default"
-                        ? "only five"
-                        : "only " + req.body.keywordCount)
-                    + " keywords for the following text: "
-                    + req.body.promptText,
-                answer: "Text: " + paraphraseText + "Keywords: " + keywords,
-                createdAt: new Date(),
-                type: 'paraphrase',
-                userId: req.user._id,
-            }
-        )
-        await history.save()
 
-        res.render('gptparaphraser', { originalText: req.body.promptText, paraphraseText, keywords })
+        if (paraphraseText != undefined && keywords != undefined) {
+
+            const history = new GPTHistoryItem(
+                {
+                    prompt: "Give a "
+                        + (req.body.wordCount == "" ? "" : req.body.wordCount + " words ")
+                        + "summary and "
+                        + (req.body.keywordCount == "default" ? "only five" : "only " + req.body.keywordCount)
+                        + " keywords for the following text: "
+                        + req.body.promptText,
+                    answer: "Text: " + paraphraseText + "Keywords: " + keywords,
+                    createdAt: new Date(),
+                    type: 'paraphrase',
+                    userId: req.user._id,
+                }
+            )
+            await history.save()
+            res.render('gptparaphraser', { originalText: req.body.promptText, paraphraseText, keywords })
+        } else {
+            res.render('gptparaphraser', {
+                originalText: req.body.promptText,
+                paraphraseText: (paraphraseText != undefined ? paraphraseText : "An unexpected error occurred while generating text"),
+                keywords: (keywords != undefined ? keywords : "An unexpected error occurred while generating text")
+            })
+        }
     }
 )
 
