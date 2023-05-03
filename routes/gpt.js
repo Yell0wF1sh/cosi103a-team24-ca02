@@ -104,7 +104,7 @@ router.post('/gpt/paraphraser',
             stop: null,
         })
             .then(results => { return results.data.choices[0].text })
-            .catch(error => console.log(error));
+            .catch(error => console.error(error));
 
         let keywords = await openai.createCompletion({
             model: "text-davinci-003",
@@ -117,7 +117,7 @@ router.post('/gpt/paraphraser',
             stop: null,
         })
             .then(results => { return results.data.choices[0].text.split(":")[1] })
-            .catch(error => console.log(error));
+            .catch(error => console.error(error));
 
         const history = new GPTHistoryItem(
             {
