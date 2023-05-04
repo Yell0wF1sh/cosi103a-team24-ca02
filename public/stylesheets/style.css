@@ -125,6 +125,15 @@ input[type="submit"] {
   margin-top: 1rem;
 }
 
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 50px 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
 #other-style-container {
   display: none;
 }
+

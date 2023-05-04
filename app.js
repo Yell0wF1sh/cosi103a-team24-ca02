@@ -105,6 +105,13 @@ app.get('/about',
   }
 )
 
+app.get('/team',
+  isLoggedIn,
+  (req, res, next) => {
+    res.render('team');
+  }
+)
+
 //app.use(transactionRouter)
 
 // catch 404 and forward to error handler
