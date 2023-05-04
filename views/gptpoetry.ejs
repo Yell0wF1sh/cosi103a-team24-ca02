@@ -3,19 +3,66 @@
 
 <head>
     <title>
-        GPT Example
+        Poetry Generator
     </title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
 </head>
 
 <body>
     <h1>
-        GPT Template
+        Poetry Generator
     </h1>
-    <p>Enter your question here!</p>
-    <form method="post" action="/gpt/prompt">
-        <input type="text" autocomplete="prompt" name="prompt"><br>
-        <input type="submit">
+    <p class="lead">Help write a poem for you!</p>
+    <form method="post" action="/poetry" onsubmit="document.getElementById('loading').hidden = false">
+        <div class="mb-3">
+            <label for="style">Select a style:</label>
+            <select name="style" id="style">
+                <option value="">Select an option</option>
+                <option value="acrostic">Acrostic</option>
+                <option value="ballad">Ballad</option>
+                <option value="concrete">Concrete</option>
+                <option value="clerihew">Clerihew</option>
+                <option value="elegy">Elegy</option>
+                <option value="epic">Epic</option>
+                <option value="ekphrastic">Ekphrastic</option>
+                <option value="epigram">Epigram</option>
+                <option value="found">Found</option>
+                <option value="free-verse">Free verse</option>
+                <option value="ghazal">Ghazal</option>
+                <option value="haiku">Haiku</option>
+                <option value="limerick">Limerick</option>
+                <option value="ode">Ode</option>
+                <option value="pastoral">Pastoral</option>
+                <option value="pantoum">Pantoum</option>
+                <option value="romantic">Romantic</option>
+                <option value="sad">Sad</option>
+                <option value="sestina">Sestina</option>
+                <option value="sonnet">Sonnet</option>
+                <option value="terza-rima">Terza rima</option>
+                <option value="triolet">Triolet</option>
+                <option value="villanelle">Villanelle</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="theme">Select a theme:</label>
+            <select name="theme" id="theme">
+                <option value="">Select an option</option>
+                <option value="love">Love</option>
+                <option value="nature">Nature</option>
+                <option value="death">Death</option>
+                <option value="hope">Hope</option>
+                <option value="dreams">Dreams</option>
+                <option value="freedom">Freedom</option>
+                <option value="faith">Faith</option>
+                <option value="friendship">Friendship</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="language">Language:</label>
+            <input type="text" name="language" id="language" />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </body>
 
