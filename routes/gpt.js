@@ -129,7 +129,7 @@ router.post('/gpt/paraphraser',
             .catch(error => console.error(error));
 
 
-        if (paraphraseText != undefined && keywords != undefined) {
+        if (paraphraseText != undefined || keywords != undefined) {
 
             const history = new GPTHistoryItem(
                 {
@@ -139,7 +139,10 @@ router.post('/gpt/paraphraser',
                         + (req.body.keywordCount == "default" ? "only five" : "only " + req.body.keywordCount)
                         + " keywords for the following text: "
                         + req.body.promptText,
-                    answer: "Text: " + paraphraseText + "Keywords: " + keywords,
+                    answer: "Text: "
+                        + (paraphraseText == undefined ? "error generating text" : paraphraseText)
+                        + "Keywords: "
+                        + (keywords == undefined ? "error generating keywords" : keywords),
                     createdAt: new Date(),
                     type: 'paraphrase',
                     userId: req.user._id,
