@@ -21,24 +21,36 @@ router.get("/poetry", (req, res, next) => {
 })
 
 router.post('/poetry',
-isLoggedIn,
-async (req, res, next) => {
-    let answer = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: "Generate a romatic poem using poetic feelings with the following needs: "
+    isLoggedIn,
+    async (req, res, next) => {
+        let prompt = "Generate a romatic poem using poetic feelings with the following needs: "
             + "style: " + req.body.style + ", "
             + "theme: " + req.body.theme + ", "
-            + "language: " + req.body.language,
-        temperature: 1,
-        max_tokens: 2048,
-        n: 1,
-        stop: null,
-    })
-        .then(results => { return results.data.choices[0].text })
-        .catch(error => console.error(error));
+            + "language: " + req.body.language;
+        let answer = await openai.createCompletion({
+            model: "text-davinci-003",
+            prompt: prompt,
+            temperature: 1,
+            max_tokens: 2048,
+            n: 1,
+            stop: null,
+        })
+            .then(results => { return results.data.choices[0].text })
+            .catch(error => console.error(error));
 
-    res.render('poetryAnswer', { answer })
-}
+        const history = new GPTHistoryItem(
+            {
+                prompt: "[Poetry] " + "style: " + req.body.style + ", "
+                    + "theme: " + req.body.theme + ", "
+                    + "language: " + req.body.language,
+                answer: answer,
+                createdAt: Date(answer.created),
+                userId: req.user._id,
+            }
+        )
+        await history.save()
+        res.render('poetryAnswer', { answer })
+    }
 )
 
 module.exports = router;
