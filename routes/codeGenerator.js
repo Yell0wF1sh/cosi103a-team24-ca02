@@ -16,17 +16,16 @@ isLoggedIn = (req, res, next) => {
     }
 }
 
-router.get("/poetry", (req, res, next) => {
-    res.render('gptpoetry', { title: 'Express' });
+router.get("/codeGenerator", (req, res, next) => {
+    res.render('codegene', { title: 'Express' });
 })
 
-router.post('/poetry',
+router.post('/codeGenerator',
     isLoggedIn,
     async (req, res, next) => {
-        let prompt = "Generate a romatic poem using poetic feelings with the following needs: "
-            + "style: " + req.body.style + ", "
-            + "theme: " + req.body.theme + ", "
-            + "language: " + req.body.language;
+        let prompt = "Generate a code based content and programming language: "
+            + "Enter code content: " + req.body.codeContent + ", "
+            + "Select code language: " + req.body.codeLanguage;
         let answer = await openai.createCompletion({
             model: "text-davinci-003",
             prompt: prompt,
@@ -35,21 +34,23 @@ router.post('/poetry',
             n: 1,
             stop: null,
         })
-            .then(results => { return results.data.choices[0].text })
+
+            .then(result => { return result.data.choices[0].text })
             .catch(error => console.error(error));
 
         const history = new GPTHistoryItem(
             {
-                prompt: "[Poetry] " + "style: " + req.body.style + ", "
-                    + "theme: " + req.body.theme + ", "
-                    + "language: " + req.body.language,
-                answer: answer,
+                prompt: "Generate a code based content and programming language: "
+                + "Enter code content: " + req.body.codeContent + ", "
+                + "Select code language: " + req.body.codeLanguage,
+                answer: answer ,
                 createdAt: new Date(),
                 userId: req.user._id,
             }
         )
         await history.save()
-        res.render('poetryAnswer', { answer })
+        res.render('codegptAnswer',{ answer });
+
     }
 )
 
